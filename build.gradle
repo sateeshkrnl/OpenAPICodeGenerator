@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets.main.resources {
+    exclude 'META-INF/beans.xml'
+}
+
+dependencies {
+    implementation 'org.freemarker:freemarker:2.3.31'
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
+    implementation 'info.picocli:picocli:4.6.3'
+    implementation 'org.jboss.weld.se:weld-se-core:5.0.1.Final'
+    implementation 'io.swagger.parser.v3:swagger-parser:2.1.0'
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude group: "junit", module: "junit"
+    }
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task copyResources(type: Copy) {
+    from("src/main/resources") { include 'META-INF/beans.xml' }
+    into "${buildDir}/classes/java/main"
+}
+processResources.dependsOn copyResources

@@ -1,0 +1,47 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Example Project
+paths:
+  /cards/search:
+    post:
+      operationId: searchCards
+      requestBody:
+        content:
+          applicaiton/json:
+            schema:
+              $ref: "#/components/schemas/CardSearch"
+      responses:
+        200:
+          description: A paged array of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Card"
+components:
+  schemas:
+    CardSearch:
+      type: object
+      properties:
+        bankNbr:
+          type: string
+        tsysLevel1:
+          type: string
+        companyName:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+    Card:
+      type: object
+      properties:
+        cardNbr:
+          type: string
+        address:
+          type: object
+          properties:
+            addressLine1:
+              type: string
