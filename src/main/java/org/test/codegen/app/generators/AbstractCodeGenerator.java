@@ -109,7 +109,7 @@ public abstract class AbstractCodeGenerator {
             schemapart = schema.get$ref().substring(schema.get$ref().lastIndexOf("/") + 1);
             schema = this.api.getComponents().getSchemas().get(schemapart);
         }
-        String returnType = JavaUtils.toType(schemapart, schema.getType());
+        String returnType = JavaUtils.toType(schemapart, schema);
         if (schema.getType().equals("array")) {
             beanClassesMetaData.add(buildBeanClass(JavaUtils.removeList(returnType), schema.getItems()));
         }
@@ -135,7 +135,7 @@ public abstract class AbstractCodeGenerator {
                 name = (String) n;
             if (s instanceof Schema)
                 schemain = (Schema) s;
-            String type = JavaUtils.toType(name, schemain.getType());
+            String type = JavaUtils.toType(name, schemain);
             if (schemain.getType().equals("object")) {
                 beanClassesMetaData.add(buildBeanClass(type, schemain));
             }

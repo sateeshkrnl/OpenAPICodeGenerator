@@ -1,5 +1,7 @@
 package org.test.codegen.app.utils;
 
+import io.swagger.v3.oas.models.media.Schema;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,10 +14,9 @@ public class JavaUtils {
 
     public static String toClassName(final String name) {
         String returnStr = name.replaceAll("\\s", "");
-        StringBuilder builder = new StringBuilder();
-        builder.append(returnStr.substring(0, 1).toUpperCase());
-        builder.append(returnStr.substring(1));
-        return builder.toString();
+        String builder = returnStr.substring(0, 1).toUpperCase() +
+                returnStr.substring(1);
+        return builder;
     }
 
     public static String removeList(final String listClass) {
@@ -29,10 +30,9 @@ public class JavaUtils {
     }
 
     public static String toPropName(String name) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(name.substring(0, 1).toLowerCase());
-        builder.append(name.substring(1));
-        return builder.toString();
+        String builder = name.substring(0, 1).toLowerCase() +
+                name.substring(1);
+        return builder;
     }
 
     public static Path toPath(String packageName, String className) {
@@ -43,7 +43,8 @@ public class JavaUtils {
         return packageName.replace(".", "/");
     }
 
-    public static String toType(String name, String schemaType) {
+    public static String toType(String name, Schema schema) {
+        String schemaType=schema.getType();
         if ("string".equals(schemaType)) {
             return "String";
         } else if ("integer".equals(schemaType)) {
@@ -51,7 +52,9 @@ public class JavaUtils {
         } else if ("object".equals(schemaType)) {
             return toClassName(name);
         } else if ("array".equals(schemaType)) {
-            return "List<" + toClassName(name) + ">";
+            String ref = schema.getItems().get$ref();
+            String schemapart = ref!=null?RefUtils.toSchemaPart(ref):name;
+            return "List<" + toClassName(schemapart) + ">";
         } else
             return "String";
     }

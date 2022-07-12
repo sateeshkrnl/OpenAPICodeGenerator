@@ -43,9 +43,11 @@ public class TransferObjectsGen {
                 name = (String) n;
             if (s instanceof Schema)
                 schemain = (Schema) s;
-            String type = JavaUtils.toType(name, schemain.getType());
+            String type = JavaUtils.toType(name, schemain);
             if (schemain.getType().equals("object")) {
                 beanClassesMetaData.add(buildBeanClass(type, schemain));
+            }else if(schemain.getType().equals("array")){
+                beanClassesMetaData.add(buildBeanClass(type, schemain.getItems()));
             }
             metaData.getProperties().add(new PropsMetaData(name, type));
         });
