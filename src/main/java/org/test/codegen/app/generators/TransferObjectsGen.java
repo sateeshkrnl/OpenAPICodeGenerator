@@ -4,9 +4,11 @@ import io.swagger.v3.oas.models.media.Schema;
 import jakarta.enterprise.inject.Vetoed;
 import org.test.codegen.app.metadata.BeanClassMetaData;
 import org.test.codegen.app.metadata.PropsMetaData;
+import org.test.codegen.app.template.TemplateManager;
 import org.test.codegen.app.utils.JavaUtils;
 import org.test.codegen.app.utils.RefUtils;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,15 +17,16 @@ import java.util.Map;
 @Vetoed
 public class TransferObjectsGen {
     private String basePackage;
-    private List<BeanClassMetaData> beanClassesMetaData = new ArrayList<>();
+    private Map<String, BeanClassMetaData> beanClassesMetaData = new HashMap<>();
     private Map<String, Schema> schemas = new HashMap<>();
+    private TemplateManager templateManager=new TemplateManager();
 
     public TransferObjectsGen(Map<String, Schema> schemas, String basePackage) {
         this.schemas = schemas;
         this.basePackage = basePackage;
     }
 
-    public List<BeanClassMetaData> getBeanClassesMetaData() {
+    public Map<String, BeanClassMetaData> getBeanClassesMetaData() {
         return beanClassesMetaData;
     }
 
@@ -45,9 +48,9 @@ public class TransferObjectsGen {
                 schemain = (Schema) s;
             String type = JavaUtils.toType(name, schemain);
             if (schemain.getType().equals("object")) {
-                beanClassesMetaData.add(buildBeanClass(type, schemain));
+                beanClassesMetaData.put(type, buildBeanClass(type, schemain));
             }else if(schemain.getType().equals("array")){
-                beanClassesMetaData.add(buildBeanClass(type, schemain.getItems()));
+                beanClassesMetaData.put(type, buildBeanClass(type, schemain.getItems()));
             }
             metaData.getProperties().add(new PropsMetaData(name, type));
         });
@@ -56,7 +59,18 @@ public class TransferObjectsGen {
 
     public void transform() {
         schemas.forEach((k, v) -> {
-            beanClassesMetaData.add(buildBeanClass(k, v));
+            Schema sc = v.getType().equals("array")?v.getItems():v;
+            String className= v.getType().equals("array")?JavaUtils.removeList(k):k;
+            if(beanClassesMetaData.get(className)==null) {
+                beanClassesMetaData.put(className, buildBeanClass(className, sc));
+            }
+        });
+    }
+
+    public void generateFiles(String outputDir){
+        beanClassesMetaData.values().forEach(meta->{
+            Path filePath = Path.of(outputDir,JavaUtils.toPath(meta.getPackageName(),meta.getClassName()).toString());
+            templateManager.processTemplate("beanclasstemplate.ftl",meta,filePath);
         });
     }
 }

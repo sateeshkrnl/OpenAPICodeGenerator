@@ -9,6 +9,8 @@ public class ClassMetaData {
     private String className;
     private List<PropsMetaData> properties;
     private List<MethodMetaData> methods;
+    private boolean isInterface=false;
+    private List<String> annotations = new ArrayList<>();
 
     private ClassMetaData(Builder builder) {
         this.className = builder.className;
@@ -16,6 +18,8 @@ public class ClassMetaData {
         this.imports = builder.imports;
         this.properties = builder.properties;
         this.methods = builder.methods;
+        this.isInterface=builder.isInterface;
+        this.annotations=builder.annotations;
     }
 
     public String getPackageName() {
@@ -38,12 +42,22 @@ public class ClassMetaData {
         return methods;
     }
 
+    public boolean getIsInterface() {
+        return isInterface;
+    }
+
+    public List<String> getAnnotations() {
+        return annotations;
+    }
+
     public static class Builder {
         private String packageName;
         private List<String> imports = new ArrayList<>();
         private String className;
         private List<PropsMetaData> properties = new ArrayList<>();
         private List<MethodMetaData> methods = new ArrayList<>();
+        private boolean isInterface =false;
+        private List<String> annotations = new ArrayList<>();
 
         public Builder className(String className) {
             this.className = className;
@@ -77,6 +91,21 @@ public class ClassMetaData {
 
         public Builder packageName(String packageName) {
             this.packageName = packageName;
+            return this;
+        }
+
+        public Builder isInterface(){
+            this.isInterface=true;
+            return this;
+        }
+
+        public Builder isClass(){
+            this.isInterface=false;
+            return this;
+        }
+
+        public Builder addAnnotation(String annotation){
+            this.annotations.add(annotation);
             return this;
         }
 

@@ -12,10 +12,10 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.test.codegen.app.exception.AppException;
 import org.test.codegen.app.utils.JavaUtils;
+import org.test.codegen.app.utils.OperationUtils;
 import org.test.codegen.app.utils.RefUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ConfigFileParser {
@@ -26,7 +26,7 @@ public class ConfigFileParser {
     private OpenAPI api;
     private Map<String, Schema> schemas = new HashMap<>();
     private Map<String, Parameter> parameters = new HashMap<>();
-    private Map<String, Operation> operations = new HashMap<>();
+    private Map<String, List<Operation>> operations = new HashMap<>();
     private Map<String, RequestBody> requestBodies = new HashMap<>();
     private Map<String, ApiResponse> responses = new HashMap<>();
 
@@ -42,7 +42,7 @@ public class ConfigFileParser {
         this.parameters = parameters;
     }
 
-    public Map<String, Operation> getOperations() {
+    public Map<String, List<Operation>> getOperations() {
         return operations;
     }
 
@@ -68,15 +68,20 @@ public class ConfigFileParser {
     private void preprocess(OpenAPI api) {
         handleComponents(api);
         if (api.getPaths() != null) {
-            api.getPaths().forEach((url, pathItem) ->
+            api.getPaths().forEach((url, pathItem) ->{
+                String className = OperationUtils.computeClassName(url);
                 pathItem.readOperationsMap().forEach((method, operation) -> {
                     String operationId = operation.getOperationId();
                     operation.addExtension("x-api-method", method);
-                    operations.put(url + "_" + method.name(), operation);
-                    handleRequestBodies(operation, operationId);
+                    operation.addExtension("x-api-url", url);
+                    operations.merge(className,Arrays.asList(operation),(k,o)->{
+                       o.add(operation);
+                       return o;
+                    });
+                    handleRequestBody(operation, operationId);
                     handleResponses(operation, operationId);
-                })
-            );
+                });
+            });
         }
     }
 
@@ -84,6 +89,7 @@ public class ConfigFileParser {
         if (operation.getResponses() != null) {
             operation.getResponses().forEach((statusCode, response) ->
                 response.getContent().forEach((contentType, mediaType) -> {
+                    operation.addExtension("x-res-content-type",contentType);
                     if (mediaType.getSchema().get$ref() == null) {
                         String respClassName = JavaUtils.toType(operationId + "ResTo", mediaType.getSchema());
                         schemas.put(respClassName, mediaType.getSchema());
@@ -98,9 +104,11 @@ public class ConfigFileParser {
         }
     }
 
-    private void handleRequestBodies(Operation operation, String operationId) {
-        if (operation.getRequestBody() != null && operation.getRequestBody().getContent() != null) {
-            operation.getRequestBody().getContent().forEach((contentType, mediaType) -> {
+    private void handleRequestBody(Operation operation, String operationId) {
+        RequestBody requestBody = operation.getRequestBody();
+        if (requestBody != null && requestBody.getContent() != null) {
+            requestBody.getContent().forEach((contentType, mediaType) -> {
+                operation.addExtension("x-req-content-type",contentType);
                 if (mediaType.getSchema().get$ref() == null) {
                     String reqClassName = JavaUtils.toType(operationId + "ResTo", mediaType.getSchema());
                     schemas.put(reqClassName, mediaType.getSchema());

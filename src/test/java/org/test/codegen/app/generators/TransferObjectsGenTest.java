@@ -19,5 +19,6 @@ class TransferObjectsGenTest {
         TransferObjectsGen gen = new TransferObjectsGen(parser.getSchemas(), "org.sam.app");
         gen.transform();
         assertEquals(3, gen.getBeanClassesMetaData().size());
+        gen.generateFiles("/home/sateesh/testcodegenerator12345");
     }
 }
