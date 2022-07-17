@@ -6,6 +6,10 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.test.codegen.app.cli.CliOpts;
+import org.test.codegen.app.config.ConfigFileParser;
 import org.test.codegen.app.metadata.ArgMetaData;
 import org.test.codegen.app.metadata.ClassMetaData;
 import org.test.codegen.app.metadata.MethodMetaData;
@@ -16,22 +20,22 @@ import org.test.codegen.app.utils.OperationUtils;
 
 import java.nio.file.Path;
 import java.util.*;
-
+@Singleton
 public class EndPointGen {
     private String basePackage;
     private List<ClassMetaData> classesMetaData = new ArrayList<>();
     private Map<String, List<Operation>> operations = new HashMap<>();
-    private TemplateManager templateManager=new TemplateManager();
-
-    public EndPointGen(Map<String, List<Operation>> operations, String basePackage){
-        this.basePackage=basePackage;
-        this.operations=operations;
-    }
+    @Inject
+    private TemplateManager templateManager;
 
     public List<ClassMetaData> getClassesMetaData() {
         return classesMetaData;
     }
 
+    public void initialize(ConfigFileParser parser,String basePackage){
+        this.operations = parser.getOperations();
+        this.basePackage= basePackage;
+    }
     public void transform(){
         operations.entrySet().forEach(e->{
             classesMetaData.add(buildClassMetaData(e.getKey(),e.getValue()));

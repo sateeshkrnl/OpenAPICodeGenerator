@@ -3,6 +3,7 @@ package org.test.codegen.app.generators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.test.codegen.app.config.ConfigFileParser;
+import org.test.codegen.app.testutils.CDITestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,9 +15,11 @@ class EndPointGenTest {
     }
     @Test
     void verifyEndPointGen(){
-        EndPointGen endPointGen = new EndPointGen(parser.getOperations(), "org.sam.test");
-        endPointGen.transform();
-        assertFalse(endPointGen.getClassesMetaData().isEmpty());
-        endPointGen.generateFiles("/home/sateesh/testcodegenerator12345");
+        CDITestUtils.cdiConsume(EndPointGen.class,(endPointGen)->{
+            endPointGen.initialize(parser,"org.sample.app");
+            endPointGen.transform();
+            assertFalse(endPointGen.getClassesMetaData().isEmpty());
+            endPointGen.generateFiles("/home/sateesh/testcodegenerator12345");
+        });
     }
 }

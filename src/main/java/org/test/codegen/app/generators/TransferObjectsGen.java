@@ -2,6 +2,9 @@ package org.test.codegen.app.generators;
 
 import io.swagger.v3.oas.models.media.Schema;
 import jakarta.enterprise.inject.Vetoed;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.test.codegen.app.config.ConfigFileParser;
 import org.test.codegen.app.metadata.BeanClassMetaData;
 import org.test.codegen.app.metadata.PropsMetaData;
 import org.test.codegen.app.template.TemplateManager;
@@ -14,18 +17,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Vetoed
+@Singleton
 public class TransferObjectsGen {
     private String basePackage;
     private Map<String, BeanClassMetaData> beanClassesMetaData = new HashMap<>();
     private Map<String, Schema> schemas = new HashMap<>();
-    private TemplateManager templateManager=new TemplateManager();
+    @Inject
+    private TemplateManager templateManager;
 
-    public TransferObjectsGen(Map<String, Schema> schemas, String basePackage) {
-        this.schemas = schemas;
+    public void initialize(ConfigFileParser parser,String basePackage){
+        this.schemas = parser.getSchemas();
         this.basePackage = basePackage;
     }
-
     public Map<String, BeanClassMetaData> getBeanClassesMetaData() {
         return beanClassesMetaData;
     }

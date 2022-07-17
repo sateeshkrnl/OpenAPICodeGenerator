@@ -2,6 +2,7 @@ package org.test.codegen.app.template;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.test.codegen.app.classgen.ClassMetaData;
 import org.test.codegen.app.constants.AppConstants;
@@ -20,6 +21,7 @@ class TemplateManagerTest {
     }
 
     @Test
+    @Disabled
     void testClassTemplate() {
         String method = " static void main(String[] args){\n}";
         ClassMetaData.Builder builder = new ClassMetaData.Builder();
@@ -38,6 +40,7 @@ class TemplateManagerTest {
     }
 
     @Test
+    @Disabled
     void testMethodTemplate() {
         MethodMetaData.Builder builder = new MethodMetaData.Builder();
         MethodMetaData metaData = builder.methodName("main")
