@@ -21,7 +21,7 @@ import org.test.codegen.app.utils.OperationUtils;
 import java.nio.file.Path;
 import java.util.*;
 @Singleton
-public class EndPointGen {
+public class EndPointGen implements IGenerator {
     private String basePackage;
     private List<ClassMetaData> classesMetaData = new ArrayList<>();
     private Map<String, List<Operation>> operations = new HashMap<>();
@@ -32,10 +32,13 @@ public class EndPointGen {
         return classesMetaData;
     }
 
-    public void initialize(ConfigFileParser parser,String basePackage){
+    @Override
+    public void initialize(ConfigFileParser parser, String basePackage){
         this.operations = parser.getOperations();
         this.basePackage= basePackage;
     }
+
+    @Override
     public void transform(){
         operations.entrySet().forEach(e->{
             classesMetaData.add(buildClassMetaData(e.getKey(),e.getValue()));
@@ -128,6 +131,7 @@ public class EndPointGen {
         return builder.build();
     }
 
+    @Override
     public void generateFiles(String outputDir){
         this.classesMetaData.forEach(meta->{
             Path filePath = Path.of(outputDir, JavaUtils.toPath(meta.getPackageName(), meta.getClassName()).toString());

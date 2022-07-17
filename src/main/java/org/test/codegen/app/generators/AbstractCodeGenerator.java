@@ -31,7 +31,7 @@ public abstract class AbstractCodeGenerator {
     private Map<String, BeanClassMetaData> tos = new HashMap<>();
     private OpenAPI api;
 
-    public void codeGenerate() throws AppException {
+    public void codeGenerate(CliOpts cliOpts) throws AppException {
         ClassMetaData metaData = buildClassMetaData(this.api);
         tos.putAll(buildCommonBeanMetaData(this.api.getComponents().getSchemas()));
         Path filePath = Path.of(cliOpts.getOutputDir(), JavaUtils.toPath(metaData.getPackageName(), metaData.getClassName()).toString());

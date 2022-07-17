@@ -18,13 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 @Singleton
-public class TransferObjectsGen {
+public class TransferObjectsGen implements IGenerator{
     private String basePackage;
     private Map<String, BeanClassMetaData> beanClassesMetaData = new HashMap<>();
     private Map<String, Schema> schemas = new HashMap<>();
     @Inject
     private TemplateManager templateManager;
 
+    @Override
     public void initialize(ConfigFileParser parser,String basePackage){
         this.schemas = parser.getSchemas();
         this.basePackage = basePackage;
@@ -59,7 +60,7 @@ public class TransferObjectsGen {
         });
         return metaData;
     }
-
+    @Override
     public void transform() {
         schemas.forEach((k, v) -> {
             Schema sc = v.getType().equals("array")?v.getItems():v;
@@ -69,7 +70,7 @@ public class TransferObjectsGen {
             }
         });
     }
-
+    @Override
     public void generateFiles(String outputDir){
         beanClassesMetaData.values().forEach(meta->{
             Path filePath = Path.of(outputDir,JavaUtils.toPath(meta.getPackageName(),meta.getClassName()).toString());

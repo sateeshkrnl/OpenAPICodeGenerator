@@ -9,15 +9,18 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.test.codegen.app.exception.AppException;
 import org.test.codegen.app.utils.JavaUtils;
 import org.test.codegen.app.utils.OperationUtils;
 import org.test.codegen.app.utils.RefUtils;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Singleton
 public class ConfigFileParser {
     @Inject
     private static Logger log;
@@ -63,6 +66,10 @@ public class ConfigFileParser {
             log.error(String.format("invalid open api file %s",result.getMessages()));
             throw new AppException("invalid open api file");
         }
+    }
+
+    public void parse(Path path){
+        parse(path.toString());
     }
 
     private void preprocess(OpenAPI api) {

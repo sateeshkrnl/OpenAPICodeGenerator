@@ -2,6 +2,7 @@ package org.test.codegen.app.cli;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.test.codegen.app.config.ConfigFileParser;
 import org.test.codegen.app.generators.GenerateSource;
 
 import static picocli.CommandLine.Command;
@@ -15,11 +16,15 @@ public class GenerateCommand implements Runnable {
     private CliOpts cliOpts;
 
     @Inject
+    private ConfigFileParser parser;
+
+    @Inject
     private GenerateSource generateSource;
 
     @Override
     public void run() {
         System.out.println("hello in picocli command");
-        generateSource.generate();
+        parser.parse(cliOpts.getOpenAPI());
+        generateSource.generate(cliOpts);
     }
 }
